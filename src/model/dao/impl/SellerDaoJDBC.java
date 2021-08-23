@@ -50,6 +50,7 @@ public class SellerDaoJDBC implements SellerDao{
 					int id = rs.getInt(1);
 					obg.setId(id);
 				}
+				DB.closeResultSet(rs);
 			}else {
 				throw new DbException("Erro desconhecido! Insert nao realizado.");
 			}			
@@ -61,20 +62,56 @@ public class SellerDaoJDBC implements SellerDao{
 		finally {
 			DB.closeStatement(st);
 		}
-		
-		
-		
+			
 	}
 
 	@Override
 	public void update(Seller obg) {
-		// TODO Auto-generated method stub
+		PreparedStatement st = null;
 		
+		try {
+			st = connection.prepareStatement(
+					"UPDATE seller "
+					+ "SET Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?, DepartmentId = ? "
+					+ "WHERE Id = ?"
+					);
+			
+			st.setString(1, obg.getName());
+			st.setString(2, obg.getEmail());
+			st.setDate(3, new java.sql.Date(obg.getBirthDate().getTime()));
+			st.setDouble(4, obg.getBaseSalary());
+			st.setInt(5, obg.getDepartment().getId());
+			st.setInt(6, obg.getId());
+			
+			st.executeUpdate();
+		}
+		catch(SQLException e) {
+			throw new DbException(e.getMessage());
+		}
+		finally {
+			DB.closeStatement(st);
+		}		
 	}
 
 	@Override
 	public void deleteById(Integer id) {
-		// TODO Auto-generated method stub
+		PreparedStatement st = null;
+		
+		try {
+			st = connection.prepareStatement(
+					"DELETE FROM seller WHERE Id = ?"
+					);
+			
+			st.setInt(1, id);
+			
+			st.executeUpdate();
+		}
+		catch(SQLException e) {
+			throw new DbException(e.getMessage());
+		}
+		finally {
+			DB.closeStatement(st);
+		}	
 		
 	}
 
