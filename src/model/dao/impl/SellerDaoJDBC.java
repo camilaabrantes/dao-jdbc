@@ -26,7 +26,43 @@ public class SellerDaoJDBC implements SellerDao{
 
 	@Override
 	public void insert(Seller obg) {
-		// TODO Auto-generated method stub
+		PreparedStatement st = null;
+		
+		try {
+			st = connection.prepareStatement(
+					"INSERT INTO seller "
+					+ "(Name, Email, BirthDate, BaseSalary, DepartmentId) "
+					+ "VALUES "
+					+ "(?, ?, ?, ?, ?)",
+					Statement.RETURN_GENERATED_KEYS
+					);
+			
+			st.setString(1, obg.getName());
+			st.setString(2, obg.getEmail());
+			st.setDate(3, new java.sql.Date(obg.getBirthDate().getTime()));
+			st.setDouble(4, obg.getBaseSalary());
+			st.setInt(5, obg.getDepartment().getId());
+			
+			int rowsAffected = st.executeUpdate();
+			if(rowsAffected > 0) {
+				ResultSet rs = st.getGeneratedKeys();
+				if(rs.next()) {
+					int id = rs.getInt(1);
+					obg.setId(id);
+				}
+			}else {
+				throw new DbException("Erro desconhecido! Insert nao realizado.");
+			}			
+			
+		}
+		catch(SQLException e) {
+			throw new DbException(e.getMessage());
+		}
+		finally {
+			DB.closeStatement(st);
+		}
+		
+		
 		
 	}
 
